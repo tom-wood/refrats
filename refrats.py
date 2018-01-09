@@ -6,37 +6,6 @@ peaks = np.loadtxt(filename)
 zero_error = 0.0
 ratio_tolerance = 0.005
 
-all_reflecs = []
-highest_index = 2
-for h in range(highest_index + 1):
-    for k in range(highest_index + 1):
-        for l in range(highest_index + 1):
-            if h == 0 and k == 0 and l == 0:
-                continue
-            else:
-                all_reflecs.append((h, k, l))
-
-def cubic_combs(hkl):
-    return [tuple(hkl), (hkl[0], hkl[2], hkl[1]), (hkl[1], hkl[0], hkl[2]),
-            (hkl[1], hkl[2], hkl[0]), (hkl[2], hkl[0], hkl[1]),
-            (hkl[2], hkl[1], hkl[0])]
-
-def get_cubic_ratios(reflecs):
-    ratios = []
-    for i0, r0 in enumerate(reflecs):
-        for i1, r1 in enumerate(reflecs):
-            if i0 >= i1:
-                continue
-            else:
-                ratio = np.sum(np.array(r0, dtype=float)) / \
-                        np.sum(np.array(r1, dtype=float))
-                if ratio < 1:
-                    ratio = 1. / ratio
-                    ratios.append((i1, i0, ratio))
-                else:
-                    ratios.append((i0, i1, ratio))
-    return ratios
-
 def check_cubic(d_spacings, cub_reflecs, cub_rats, tol=ratio_tolerance,
                 suppress_repeats=True, peaks=None):
     ratiosqs = []
@@ -69,6 +38,36 @@ def check_cubic(d_spacings, cub_reflecs, cub_rats, tol=ratio_tolerance,
     if suppress_repeats:
         print "Use suppress_repeats=False to get other reflection ratios"
 
+def cubic_combs(hkl):
+    return [tuple(hkl), (hkl[0], hkl[2], hkl[1]), (hkl[1], hkl[0], hkl[2]),
+            (hkl[1], hkl[2], hkl[0]), (hkl[2], hkl[0], hkl[1]),
+            (hkl[2], hkl[1], hkl[0])]
+
+def get_cubic_ratios(reflecs):
+    ratios = []
+    for i0, r0 in enumerate(reflecs):
+        for i1, r1 in enumerate(reflecs):
+            if i0 >= i1:
+                continue
+            else:
+                ratio = np.sum(np.array(r0, dtype=float)**2) / \
+                        np.sum(np.array(r1, dtype=float)**2)
+                if ratio < 1:
+                    ratio = 1. / ratio
+                    ratios.append((i1, i0, ratio))
+                else:
+                    ratios.append((i0, i1, ratio))
+    return ratios
+
+all_reflecs = []
+highest_index = 2
+for h in range(highest_index + 1):
+    for k in range(highest_index + 1):
+        for l in range(highest_index + 1):
+            if h == 0 and k == 0 and l == 0:
+                continue
+            else:
+                all_reflecs.append((h, k, l))
 
 fcc_reflecs = []
 for r in all_reflecs:
